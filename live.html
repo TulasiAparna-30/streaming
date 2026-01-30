@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StreamVerse | Live</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ===== GLOBAL ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0A0A14 0%, #1A1A2E 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: rgba(10, 10, 20, 0.85);
+            backdrop-filter: blur(15px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .logo i { color: var(--primary); }
+
+        .nav-links a {
+            color: #ccc;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-links a.active {
+            background: linear-gradient(45deg, #8A2BE2, #00CED1);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .live-hero {
+            position: relative;
+            width: 100%;
+            height: 50vh;
+            background: url('https://picsum.photos/seed/liveconcert/1600/600') center/cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .live-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(10,10,20,0.3), #0A0A14);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            background: rgba(0,0,0,0.6);
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .live-badge-hero {
+            background: #FF0000;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+
+        /* ===== SECTIONS & GRID ===== */
+        .live-section {
+            padding: 3rem 5%;
+            max-width: 1600px;
+            margin: auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #FF6B8B;
+            padding-left: 15px;
+        }
+
+        .live-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        /* ===== LIVE CARD ===== */
+        .live-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .live-card:hover {
+            transform: translateY(-5px);
+            border-color: #FF6B8B;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .card-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .card-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: 0.3s;
+        }
+
+        .live-card:hover .card-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        .live-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #FF0000;
+            color: white;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .viewer-count {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            z-index: 2;
+        }
+
+        .card-info {
+            padding: 1rem;
+            display: flex;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #8A2BE2;
+        }
+
+        .text-info h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .text-info p {
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .category-tag {
+            color: #00CED1;
+            font-size: 0.8rem;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            background: rgba(0,0,0,0.4);
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .live-hero { height: 40vh; }
+            .live-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+    <div class="logo">
+        <i class="fas fa-play-circle"></i> StreamVerse
+    </div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="movies.html" class="nav-link">Movies</a>
+        <a href="tvshows.html" class="nav-link">TV Shows</a>
+        <a href="live.html" class="active">Live</a>
+        <a href="mylist.html" class="nav-link">Mylist</a>
+    </div>
+</nav>
+
+<!-- ===== LIVE HERO ===== -->
+<section class="live-hero">
+    <div class="hero-content">
+        <div class="live-badge-hero"><i class="fas fa-circle"></i> LIVE NOW</div>
+        <h1>Global Music Festival</h1>
+        <p style="margin: 1rem 0;">Streaming live from 5 different countries. Join 500,000 viewers now.</p>
+        <button style="background: linear-gradient(45deg, #8A2BE2, #00CED1); border: none; padding: 10px 25px; border-radius: 25px; color: white; font-weight: bold; cursor: pointer;">Watch Stream</button>
+    </div>
+</section>
+
+<!-- ===== LIVE CONTENT (30 IMAGES TOTAL) ===== -->
+
+<!-- SECTION 1: TRENDING LIVE (10 Images) -->
+<section class="live-section">
+    <div class="section-header">
+        <h2><i class="fas fa-fire" style="color: #FF6B8B; margin-right: 10px;"></i> Trending Live</h2>
+    </div>
+    
+    <div class="live-grid">
+        <!-- 1 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 25K</span>
+                <img src="https://picsum.photos/seed/live1/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user1/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Pro Gaming Championship Finals</h4>
+                    <p class="category-tag">Esports</p>
+                </div>
+            </div>
+        </div>
+        <!-- 2 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 12K</span>
+                <img src="https://picsum.photos/seed/live2/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user2/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Late Night Talk Show</h4>
+                    <p class="category-tag">Talk Show</p>
+                </div>
+            </div>
+        </div>
+        <!-- 3 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 8.5K</span>
+                <img src="https://picsum.photos/seed/live3/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user3/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Cooking with Chef Mario</h4>
+                    <p class="category-tag">Food</p>
+                </div>
+            </div>
+        </div>
+        <!-- 4 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 42K</span>
+                <img src="https://picsum.photos/seed/live4/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user4/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Breaking News Coverage</h4>
+                    <p class="category-tag">News</p>
+                </div>
+            </div>
+        </div>
+        <!-- 5 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 5K</span>
+                <img src="https://picsum.photos/seed/live5/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user5/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Just Chatting vibes</h4>
+                    <p class="category-tag">Social</p>
+                </div>
+            </div>
+        </div>
+        <!-- 6 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 15K</span>
+                <img src="https://picsum.photos/seed/live6/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user6/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>ASMR Relaxation Session</h4>
+                    <p class="category-tag">Wellness</p>
+                </div>
+            </div>
+        </div>
+        <!-- 7 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 9K</span>
+                <img src="https://picsum.photos/seed/live7/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user7/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Street Art Session</h4>
+                    <p class="category-tag">Art</p>
+                </div>
+            </div>
+        </div>
+        <!-- 8 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 30K</span>
+                <img src="https://picsum.photos/seed/live8/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user8/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>International Cricket Match</h4>
+                    <p class="category-tag">Sports</p>
+                </div>
+            </div>
+        </div>
+        <!-- 9 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 3K</span>
+                <img src="https://picsum.photos/seed/live9/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user9/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Reacting to Viral Videos</h4>
+                    <p class="category-tag">Reaction</p>
+                </div>
+            </div>
+        </div>
+        <!-- 10 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 18K</span>
+                <img src="https://picsum.photos/seed/live10/400/225" alt="Stream">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/user10/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Electronic Music Set</h4>
+                    <p class="category-tag">Music</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 2: GAMING & ESPORTS (10 Images) -->
+<section class="live-section">
+    <div class="section-header">
+        <h2><i class="fas fa-gamepad" style="color: #8A2BE2; margin-right: 10px;"></i> Gaming & Esports</h2>
+    </div>
+    
+    <div class="live-grid">
+        <!-- 11 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 65K</span>
+                <img src="https://picsum.photos/seed/game1/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer1/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>FPS Ranked Grind</h4>
+                    <p class="category-tag">Shooter</p>
+                </div>
+            </div>
+        </div>
+        <!-- 12 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 12K</span>
+                <img src="https://picsum.photos/seed/game2/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer2/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Retro Console Marathon</h4>
+                    <p class="category-tag">Retro</p>
+                </div>
+            </div>
+        </div>
+        <!-- 13 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 45K</span>
+                <img src="https://picsum.photos/seed/game3/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer3/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>MMO Raid Boss</h4>
+                    <p class="category-tag">RPG</p>
+                </div>
+            </div>
+        </div>
+        <!-- 14 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 9K</span>
+                <img src="https://picsum.photos/seed/game4/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer4/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Speedrunning Any%</h4>
+                    <p class="category-tag">Speedrun</p>
+                </div>
+            </div>
+        </div>
+        <!-- 15 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 22K</span>
+                <img src="https://picsum.photos/seed/game5/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer5/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Strategy Tournament</h4>
+                    <p class="category-tag">RTS</p>
+                </div>
+            </div>
+        </div>
+        <!-- 16 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 11K</span>
+                <img src="https://picsum.photos/seed/game6/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer6/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Fighting Game Weekly</h4>
+                    <p class="category-tag">Fighting</p>
+                </div>
+            </div>
+        </div>
+        <!-- 17 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 7K</span>
+                <img src="https://picsum.photos/seed/game7/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer7/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Survival Mode Challenge</h4>
+                    <p class="category-tag">Survival</p>
+                </div>
+            </div>
+        </div>
+        <!-- 18 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 33K</span>
+                <img src="https://picsum.photos/seed/game8/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer8/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Open World Exploration</h4>
+                    <p class="category-tag">Adventure</p>
+                </div>
+            </div>
+        </div>
+        <!-- 19 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 14K</span>
+                <img src="https://picsum.photos/seed/game9/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer9/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Racing Simulator</h4>
+                    <p class="category-tag">Racing</p>
+                </div>
+            </div>
+        </div>
+        <!-- 20 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 19K</span>
+                <img src="https://picsum.photos/seed/game10/400/225" alt="Game">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/gamer10/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Minecraft Build Battle</h4>
+                    <p class="category-tag">Creative</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: MUSIC & EVENTS (10 Images) -->
+<section class="live-section">
+    <div class="section-header">
+        <h2><i class="fas fa-music" style="color: #00CED1; margin-right: 10px;"></i> Music & Events</h2>
+    </div>
+    
+    <div class="live-grid">
+        <!-- 21 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 100K</span>
+                <img src="https://picsum.photos/seed/music1/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist1/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Rock Festival Main Stage</h4>
+                    <p class="category-tag">Rock</p>
+                </div>
+            </div>
+        </div>
+        <!-- 22 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 50K</span>
+                <img src="https://picsum.photos/seed/music2/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist2/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>EDM DJ Set - Club Mix</h4>
+                    <p class="category-tag">EDM</p>
+                </div>
+            </div>
+        </div>
+        <!-- 23 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 25K</span>
+                <img src="https://picsum.photos/seed/music3/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist3/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Grand Piano Concert</h4>
+                    <p class="category-tag">Classical</p>
+                </div>
+            </div>
+        </div>
+        <!-- 24 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 15K</span>
+                <img src="https://picsum.photos/seed/music4/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist4/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Acoustic Session</h4>
+                    <p class="category-tag">Indie</p>
+                </div>
+            </div>
+        </div>
+        <!-- 25 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 8K</span>
+                <img src="https://picsum.photos/seed/music5/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist5/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Podcast Live Recording</h4>
+                    <p class="category-tag">Podcast</p>
+                </div>
+            </div>
+        </div>
+        <!-- 26 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 12K</span>
+                <img src="https://picsum.photos/seed/music6/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist6/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Jazz Night Lounge</h4>
+                    <p class="category-tag">Jazz</p>
+                </div>
+            </div>
+        </div>
+        <!-- 27 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 35K</span>
+                <img src="https://picsum.photos/seed/music7/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist7/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>K-Pop Dance Cover</h4>
+                    <p class="category-tag">Dance</p>
+                </div>
+            </div>
+        </div>
+        <!-- 28 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 18K</span>
+                <img src="https://picsum.photos/seed/music8/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist8/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Tech Conference Keynote</h4>
+                    <p class="category-tag">Tech</p>
+                </div>
+            </div>
+        </div>
+        <!-- 29 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 6K</span>
+                <img src="https://picsum.photos/seed/music9/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist9/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Street Busker Cam</h4>
+                    <p class="category-tag">Street</p>
+                </div>
+            </div>
+        </div>
+        <!-- 30 -->
+        <div class="live-card">
+            <div class="card-thumbnail">
+                <span class="live-tag">LIVE</span>
+                <span class="viewer-count"><i class="fas fa-user"></i> 22K</span>
+                <img src="https://picsum.photos/seed/music10/400/225" alt="Music">
+            </div>
+            <div class="card-info">
+                <img src="https://picsum.photos/seed/artist10/50/50" class="avatar">
+                <div class="text-info">
+                    <h4>Charity Fundraiser Stream</h4>
+                    <p class="category-tag">Charity</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+    <p>&copy; 2024 StreamVerse. All rights reserved.</p>
+    <p style="font-size: 0.9rem; margin-top: 10px;">Designed for College Project</p>
+</footer>
+
+</body>
+</html>

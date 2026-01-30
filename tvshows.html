@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>StreamVerse | TV Shows</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ====== RESET & VARIABLES ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #8A2BE2;
+            --secondary: #00CED1;
+            --dark: #0A0A14;
+            --light: #F5F5F5;
+            --accent: #FF6B8B;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0A0A14 0%, #1A1A2E 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        #animatedBg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .floating-shape {
+            position: absolute;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            opacity: 0.08;
+            filter: blur(80px);
+            animation: floatShape 25s infinite ease-in-out;
+        }
+
+        @keyframes floatShape {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -50px) scale(1.2); }
+        }
+
+        /* ====== NAVBAR ====== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: rgba(10, 10, 20, 0.85);
+            backdrop-filter: blur(15px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .logo i { color: var(--primary); }
+
+        .nav-links a {
+            color: #ccc;
+            text-decoration: none;
+            margin-left: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-links a.active {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+        }
+
+        /* ====== HERO SECTION ====== */
+        .hero {
+            position: relative;
+            padding: 6rem 5% 3rem;
+            max-width: 1400px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero-tag {
+            background: var(--accent);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .hero p {
+            color: #ccc;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            border-color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* ====== FILTER TABS ====== */
+        .filter-tabs {
+            padding: 1rem 5%;
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            max-width: 1400px;
+            margin: 0 auto 2rem;
+        }
+
+        .filter-tab {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            color: #aaa;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: var(--secondary);
+            color: var(--dark);
+            font-weight: bold;
+        }
+
+        /* ====== TV SHOW GRID ====== */
+        .featured-section {
+            padding: 2rem 5%;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--secondary);
+            padding-left: 15px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .show-card {
+            background: var(--glass);
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .show-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border-color: var(--accent);
+            z-index: 10;
+        }
+
+        .poster-wrapper {
+            position: relative;
+            width: 100%;
+            height: 350px; 
+            overflow: hidden;
+        }
+
+        .show-poster {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .show-card:hover .show-poster {
+            transform: scale(1.1);
+            opacity: 0.3;
+        }
+
+        /* Season Badge */
+        .season-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+            z-index: 2;
+        }
+
+        /* Overlay Actions */
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.3s;
+            z-index: 3;
+        }
+
+        .show-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .play-icon-big {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px var(--primary);
+        }
+
+        .overlay-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .icon-btn:hover {
+            background: var(--accent);
+        }
+
+        .show-info {
+            padding: 1.2rem;
+            background: linear-gradient(to top, #0A0A14, transparent);
+            margin-top: -60px; /* Pull up over image */
+            position: relative;
+            z-index: 4;
+        }
+
+        .show-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .show-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #aaa;
+        }
+
+        .show-meta span i {
+            margin-right: 5px;
+            color: var(--secondary);
+        }
+
+        .new-episode {
+            color: var(--accent);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* ====== FOOTER ====== */
+        footer {
+            background: rgba(0,0,0,0.4);
+            padding: 3rem 5%;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .hero { flex-direction: column; text-align: center; padding-top: 4rem; }
+            .hero h1 { font-size: 2.2rem; }
+            .hero-btns { justify-content: center; }
+            .navbar { flex-direction: column; gap: 1rem; }
+            .nav-links { display: flex; gap: 5px; overflow-x: auto; width: 100%; justify-content: center; }
+            .content-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Animated Background -->
+    <div id="animatedBg"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-play-circle"></i> StreamVerse
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="movies.html" class="nav-link">Movies</a>
+            <a href="tvshows.html" class="active">TV Shows</a>
+            <a href="live.html" class="nav-link">Live</a>
+            <a href="mylist.html" class="nav-link">Mylist</a>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-text">
+            <div class="hero-tag"><i class="fas fa-fire"></i> #1 Trending Series</div>
+            <h1>Cyber Chronicles: <br>Season 4</h1>
+            <p>The gripping finale of the hit sci-fi saga. As the rebellion grows, the lines between human and AI blur forever. Don't miss the episode everyone is talking about.</p>
+            <div class="hero-btns">
+                <button class="btn btn-primary"><i class="fas fa-play"></i> Resume S4:E5</button>
+                <button class="btn btn-secondary"><i class="fas fa-plus"></i> Add to List</button>
+            </div>
+        </div>
+        <!-- Decorative Hero Image (Visual only) -->
+        <div style="flex: 1; height: 300px; background: url('https://picsum.photos/seed/cyberhero/600/400') center/cover; border-radius: 20px; display: none;"></div> 
+    </section>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs">
+        <div class="filter-tab active">All Genres</div>
+        <div class="filter-tab">Sci-Fi</div>
+        <div class="filter-tab">Crime</div>
+        <div class="filter-tab">Comedy</div>
+        <div class="filter-tab">Anime</div>
+        <div class="filter-tab">Documentary</div>
+    </div>
+
+    <!-- TV SHOWS GRID SECTION (20 CARDS) -->
+    <section class="featured-section">
+        <div class="section-header">
+            <h2 class="section-title"><i class="fas fa-tv" style="color: var(--secondary); margin-right: 10px;"></i> Popular Series</h2>
+        </div>
+
+        <div class="content-grid">
+            <!-- Card 1 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S3 • New Ep</span>
+                    <img src="https://picsum.photos/seed/darkshow/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <span class="new-episode">New Episode Today</span>
+                    <h3 class="show-title">Dark Horizon</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.1</span><span>Sci-Fi • Drama</span></div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S1 • Trending</span>
+                    <img src="https://picsum.photos/seed/citycrime/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">City of Shadows</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.7</span><span>Crime • Thriller</span></div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S5 • Finale</span>
+                    <img src="https://picsum.photos/seed/spacewar/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Galaxy Wars</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.4</span><span>Action • Space</span></div>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S2 • Updated</span>
+                    <img src="https://picsum.photos/seed/comedytv/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Laugh Track</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.2</span><span>Comedy • Sitcom</span></div>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S3 • New</span>
+                    <img src="https://picsum.photos/seed/knight/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">The Iron Throne</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.6</span><span>Fantasy • Drama</span></div>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S1 • Hit</span>
+                    <img src="https://picsum.photos/seed/zombie/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Dead Zone</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.9</span><span>Horror • Survival</span></div>
+                </div>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S4 • Drama</span>
+                    <img src="https://picsum.photos/seed/hospital/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Night Shift</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.5</span><span>Medical • Drama</span></div>
+                </div>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S2 • Docu</span>
+                    <img src="https://picsum.photos/seed/wildlife/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Planet Wild</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.3</span><span>Nature • Docu</span></div>
+                </div>
+            </div>
+
+            <!-- Card 9 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S1 • New</span>
+                    <img src="https://picsum.photos/seed/detective/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Midnight Detective</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.4</span><span>Crime • Mystery</span></div>
+                </div>
+            </div>
+
+            <!-- Card 10 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S3 • Top Rated</span>
+                    <img src="https://picsum.photos/seed/kitchen/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Chef's Table</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.0</span><span>Food • Reality</span></div>
+                </div>
+            </div>
+
+            <!-- Card 11 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S6 • Final</span>
+                    <img src="https://picsum.photos/seed/highschool/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Campus Life</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 7.8</span><span>Drama • Teen</span></div>
+                </div>
+            </div>
+
+            <!-- Card 12 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S2 • Anime</span>
+                    <img src="https://picsum.photos/seed/mech/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Mecha Zero</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.8</span><span>Anime • Action</span></div>
+                </div>
+            </div>
+
+            <!-- Card 13 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S4 • Returning</span>
+                    <img src="https://picsum.photos/seed/crown/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">The Royal Court</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.2</span><span>History • Drama</span></div>
+                </div>
+            </div>
+
+            <!-- Card 14 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S5 • Supernatural</span>
+                    <img src="https://picsum.photos/seed/upside/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Strange World</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.5</span><span>Horror • Fantasy</span></div>
+                </div>
+            </div>
+
+            <!-- Card 15 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S9 • Classic</span>
+                    <img src="https://picsum.photos/seed/office/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Paper Sales</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.0</span><span>Comedy • Sitcom</span></div>
+                </div>
+            </div>
+
+            <!-- Card 16 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S2 • Thriller</span>
+                    <img src="https://picsum.photos/seed/mind/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Mind Hunter</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.9</span><span>Crime • Thriller</span></div>
+                </div>
+            </div>
+
+            <!-- Card 17 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S7 • Reality</span>
+                    <img src="https://picsum.photos/seed/beach/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Summer Love</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 6.5</span><span>Romance • Reality</span></div>
+                </div>
+            </div>
+
+            <!-- Card 18 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S5 • Legend</span>
+                    <img src="https://picsum.photos/seed/chemistry/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Blue Crystal</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.9</span><span>Crime • Drama</span></div>
+                </div>
+            </div>
+
+            <!-- Card 19 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S3 • Fantasy</span>
+                    <img src="https://picsum.photos/seed/monster/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">The Hunter</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 8.8</span><span>Fantasy • Action</span></div>
+                </div>
+            </div>
+
+            <!-- Card 20 -->
+            <div class="show-card">
+                <div class="poster-wrapper">
+                    <span class="season-badge">S1 • Science</span>
+                    <img src="https://picsum.photos/seed/nebula/400/600" alt="TV Show" class="show-poster">
+                    <div class="card-overlay"><i class="fas fa-play-circle play-icon-big"></i></div>
+                </div>
+                <div class="show-info">
+                    <h3 class="show-title">Cosmos Journey</h3>
+                    <div class="show-meta"><span><i class="fas fa-star"></i> 9.4</span><span>Docu • Science</span></div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>&copy; 2024 StreamVerse. All rights reserved.</p>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Designed for College Project</p>
+    </footer>
+
+    <script>
+        // Background Animation Script
+        function createBackground() {
+            const bg = document.getElementById('animatedBg');
+            if(bg.children.length > 0) return; 
+
+            for(let i = 0; i < 15; i++) {
+                const shape = document.createElement('div');
+                shape.classList.add('floating-shape');
+                const size = Math.random() * 300 + 100;
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                const duration = Math.random() * 20 + 15;
+                
+                shape.style.width = `${size}px`;
+                shape.style.height = `${size}px`;
+                shape.style.left = `${left}%`;
+                shape.style.top = `${top}%`;
+                shape.style.animationDuration = `${duration}s`;
+                shape.style.animationDelay = `${Math.random() * 5}s`;
+
+                bg.appendChild(shape);
+            }
+        }
+
+        // Filter Tab Interaction
+        const tabs = document.querySelectorAll('.filter-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                // Note: Real filtering logic would go here
+            });
+        });
+
+        window.addEventListener('load', createBackground);
+    </script>
+
+</body>
+</html>
